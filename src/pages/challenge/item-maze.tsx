@@ -1,12 +1,14 @@
 import React, { type FC, useEffect, useState } from "react";
 
-type RoomName =
-    "bone" | "mail" | "banana" | "cactus" |
-    "cheese" | "carrot" | "mushroom" |
-    "flower" | "tree" | "bread" | "rock" | "sparkles"
+type RoomName = "bone" | "mail" | "banana" | "cactus" | "cheese" | "carrot" | "mushroom" | "flower" | "tree" | "bread" | "rock" | "sparkles";
 
+type LockName = "monkey" | "rabbit" | "dog" | "mouse" | "duck";
 
-interface Room {
+type MiscName = "bag" | "door" | "no" | "yes" | "think" | "question";
+
+type EmojiName = RoomName | LockName | MiscName;
+
+type Room = {
     id: RoomName;
     title: string;
     connections: Connection[];
@@ -17,8 +19,6 @@ type Connection = {
     lock: LockName | null;
 }
 
-type LockName = "monkey" | "rabbit" | "dog" | "mouse" | "duck"
-
 type Lock = {
     id: LockName;
     title: string;
@@ -26,7 +26,6 @@ type Lock = {
 }
 
 const rooms: Room[] = [
-
     //kost:
     {
         id: "bone",
@@ -146,11 +145,10 @@ const rooms: Room[] = [
             { lock: null, to: "rock" },
             { lock: null, to: "mushroom" },
         ]
-    },
+    }
+];
 
-]
 const locks: Lock[] = [
-
     //clovek:
     {
         id: "monkey",
@@ -181,76 +179,38 @@ const locks: Lock[] = [
         title: "Kachna",
         unlockedBy: "bread"
     }
+];
 
-]
-
-
-/*const emojis =
-    {
-        bone: "🦴",
-        mail: "✉",
-        banana: "🍌",
-        cactus: "🌵",
-        cheese: "🧀",
-        carrot: "🥕",
-        mushroom: "🍄",
-        flower: "🌼",
-        tree: "🌲",
-        bread: "🍞",
-        rock: "🥌",
-        sparkles: "✨",
-        monkey: "🐵",
-        rabbit: "🐰",
-        dog: "🐶",
-        mouse: "🐭",
-        duck: "🦆",
-        bag: "💼",
-        lock: "🔒",
-        find: "🔎",
-        door: "🚪",
-        no: "❌",
-        yes: "✔"
-    }*/
-
-const emojis = {
-    bone: "1F9B4",
+const emojis: Record<EmojiName, string> = {
+    bone: "1f9b4",
     mail: "2709",
-    banana: "1F34C",
-    cactus: "1F335",
-    cheese: "1F9C0",
-    carrot: "1F955",
-    mushroom: "1F344",
-    flower: "1F33C",
-    tree: "1F332",
-    bread: "1F950",
-    rock: "1FAA8",
+    banana: "1f34c",
+    cactus: "1f335",
+    cheese: "1f9c0",
+    carrot: "1f955",
+    mushroom: "1f344",
+    flower: "1f33c",
+    tree: "1f332",
+    bread: "1f950",
+    rock: "1faa8",
     sparkles: "2728",
-    monkey: "1F435",
-    rabbit: "1F430",
-    dog: "1F436",
-    mouse: "1F42D",
-    duck: "1F986",
-    bag: "1F4BC",
-    door: "1F6AA",
-    no: "274C",
+    monkey: "1f435",
+    rabbit: "1f430",
+    dog: "1f436",
+    mouse: "1f42d",
+    duck: "1f986",
+    bag: "1f4bc",
+    door: "1f6aa",
+    no: "274c",
     yes: "2714",
-    think: "1F4AD",
+    think: "1f4ad",
     question: "2754",
 }
-type MiscName = "bag" | "door" | "no" | "yes" | "think" | "question";
-type EmojiName = RoomName | LockName | MiscName;
 
-const getEmojiUrl = (name: EmojiName) => {
-    const openmoji = `https://openmoji.org/data/color/svg/`//code.toUpperCase()
-    const twemoji = `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/`//code.toLowerCase()
 
-    const code = emojis[name].toLowerCase();
+const getEmojiUrl = (name: EmojiName) => `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${emojis[name]}.svg`;
 
-    return twemoji + code + ".svg";
-
-}
-
-const getRoom = (name: RoomName) => {
+const getRoom = (name: RoomName): Room => {
     return rooms.find(room => room.id == name)!
 }
 
@@ -259,17 +219,11 @@ type EmojiProps = {
 }
 
 const Emoji: FC<EmojiProps> = ({ code }: EmojiProps) => {
-    const unicodeEmoji = String.fromCodePoint(parseInt(emojis[code], 16))
+    const unicodeEmoji = String.fromCodePoint(parseInt(emojis[code], 16));
 
     return (
-        <div className={"h-10 w-10 inline"}>
-            {
-
-                /*unicode
-                    ? <span className={"text-4xl"}>{emojis[code]}</span>
-                    :*/
-                <img alt={unicodeEmoji} className={"h-10 inline align-top"} src={getEmojiUrl(code)} />
-            }
+        <div className="h-10 w-10 inline">
+            <img alt={unicodeEmoji} className="h-10 inline align-top" src={getEmojiUrl(code)} />
         </div>
     );
 }
@@ -301,8 +255,7 @@ const Bag: FC<BagProps> = ({ visitedRooms, maxRooms, thinkingIcon }) => {
                     <Emoji code={visitedRooms.at(-1)!} />
                 </div>
             </div>
-            <div className={"bg-indigo-300 grid grid-cols-4"}>
-
+            <div className={"bg-indigo-300"}>
                 {
                     displayedEmojis.map((roomCode, index) => <Emoji key={index} code={roomCode} />)
                 }
@@ -328,6 +281,86 @@ const Footnote: FC<FootnoteProps> = ({ reset }) => {
     )
 };
 
+type DoorProps = {
+    enabled: boolean;
+    linkedTo: RoomName;
+    emoji: EmojiName | null;
+    requiredItem: EmojiName | null;
+    addRoom: (room: RoomName) => void;
+}
+
+const Door: FC<DoorProps> = ({ enabled, emoji, linkedTo, requiredItem = null, addRoom}) => {
+    const [hasMouse, setHasMouse] = useState<boolean>(false)
+    const shownEmoji: EmojiName =
+        hasMouse
+            ? enabled ? linkedTo : "no"
+            : emoji ?? "door";
+
+    return (
+        <div
+            style={{
+                cursor: enabled ? "pointer" : "not-allowed"
+            }}
+            className={"inline-block m-1 rounded-xl min-w-fit"}
+            onMouseEnter={() => setHasMouse(true)}
+            onMouseLeave={() => setHasMouse(false)}
+        >
+            <button onClick={() => { if (enabled) addRoom(linkedTo);
+            }}>
+                <Emoji code={shownEmoji} />
+            </button>
+        </div>
+    )
+}
+
+const hasVisited = (visitedRooms: Array<RoomName>, roomCode: RoomName): boolean => {
+    return visitedRooms.includes(roomCode);
+}
+
+const neededKey = (lockCode: LockName): RoomName => {
+    return locks.find(l => l.id == lockCode)!.unlockedBy;
+}
+
+type DoorsProps = {
+    maxRooms: number;
+    visitedRooms: Array<RoomName>;
+    currentConnections: Array<Connection>;
+    addRoom: (room: RoomName) => void;
+};
+
+const Doors: FC<DoorsProps> = ({ visitedRooms, maxRooms, currentConnections, addRoom }) => {
+    if (visitedRooms.length == 0) return <></>;
+    if (visitedRooms.length >= maxRooms) return <></>
+
+
+    return (
+        <div>
+            <div className={"bg-amber-500"}>
+                {
+                    currentConnections.map((connection, index) => {
+                        const canEnter = connection.lock == null ? true : hasVisited(visitedRooms, neededKey(connection.lock))
+
+                        return (
+                            <Door
+                                key={index}
+                                enabled={canEnter}
+                                emoji={connection.lock}
+                                linkedTo={connection.to}
+                                requiredItem={canEnter ? null : neededKey(connection.lock!)}
+                                addRoom={addRoom}
+                            />
+
+                        )
+                    }
+                    )
+                }
+
+            </div>
+
+        </div>
+    )
+}
+
 const ItemMaze = () => {
     const initialVisitedRooms: RoomName[] = ["sparkles"];
     const defaultThinkingIcon: EmojiName = "think";
@@ -339,102 +372,10 @@ const ItemMaze = () => {
 
     useEffect(() => reset(), [])
 
-    const addRoom = (roomCode: RoomName) => {
-        setVisitedRooms([...visitedRooms, roomCode])
+    const addRoom = (room: RoomName) => {
+        setVisitedRooms(visitedRooms => [...visitedRooms, room]);
         //https://stackoverflow.com/a/46545530
-        setCurrentConnections(getRoom(roomCode).connections.sort(() => .5 - Math.random()));
-    }
-
-    const hasVisited = (roomCode: RoomName) => {
-        return visitedRooms.indexOf(roomCode) != -1;
-    }
-
-    const neededKey = (lockCode: LockName) => {
-        const lock = locks.find(l => l.id == lockCode);
-        return lock!.unlockedBy;
-    }
-
-    const Doors: FC = () => {
-        if (visitedRooms.length == 0) return <></>;
-        if (visitedRooms.length >= maxRooms) return <></>
-
-        //const lastVisitedRoom: RoomName = visitedRooms.at(-1)!;
-        //const currentRoom: Room = rooms.find(searchedRoom => searchedRoom.id == lastVisitedRoom)!
-
-        type DoorProps = {
-            enabled: boolean,
-            emoji: EmojiName | null,
-            linkedTo: RoomName,
-            thinkingItem: EmojiName,
-        }
-        const Door: FC<DoorProps> = ({ enabled, emoji, linkedTo, thinkingItem }) => {
-
-            const [hasMouse, setHasMouse] = useState<boolean>(false)
-
-
-            const shownEmoji: EmojiName =
-                hasMouse
-                    ? enabled ? linkedTo : "no"
-                    : emoji ?? "door";
-            return (
-                <div
-                    style={{
-                        cursor: enabled ? "pointer" : "not-allowed"
-                    }}
-                    className={"inline-block m-1 rounded-xl min-w-fit"}
-                    onMouseEnter={() => {
-                        setHasMouse(true);
-                        if (thinkingItem) setThinkingIcon(thinkingItem)
-
-                    }}
-                    onMouseLeave={() => {
-                        setHasMouse(false)
-                        setThinkingIcon(defaultThinkingIcon)
-                    }}
-                >
-                    <a onClick={() => {
-                        if (enabled) addRoom(linkedTo);
-                    }}>
-                        <Emoji code={shownEmoji} />
-                    </a>
-                </div>
-            )
-
-        }
-
-        return (
-            <div>
-                <div className={"bg-amber-500"}>
-                    {
-                        currentConnections.map((connection, index) => {
-                            const canEnter =
-                                connection.lock == null
-                                    ? true
-                                    : hasVisited(neededKey(connection.lock))
-
-                            const missingItem =
-                                canEnter
-                                    ? "yes"
-                                    : neededKey(connection.lock!);
-
-                            return (
-                                <Door
-                                    key={index}
-                                    enabled={canEnter}
-                                    emoji={connection.lock}
-                                    linkedTo={connection.to}
-                                    thinkingItem={missingItem}
-                                />
-
-                            )
-                        }
-                        )
-                    }
-
-                </div>
-
-            </div>
-        )
+        setCurrentConnections(getRoom(room).connections.sort(() => .5 - Math.random()));
     }
 
     const reset = () => {
@@ -443,13 +384,10 @@ const ItemMaze = () => {
     };
 
     return (
-        <div className={"text-4xl flex h-screen"}>
-            <div className={"m-auto bg-gray-100 p-1"}>
+        <div className="text-4xl flex flex-col min-h-screen justify-center items-center">
+            <div className="flex flex-col w-2/3 lg:w-2/5 xl:w-1/3">
                 <Bag thinkingIcon={thinkingIcon} visitedRooms={visitedRooms} maxRooms={maxRooms} />
-                {
-                    visitedRooms.length > 0 &&
-                    <Doors />
-                }
+                <Doors currentConnections={currentConnections} maxRooms={maxRooms} visitedRooms={visitedRooms} addRoom={addRoom}/>
                 <Footnote reset={reset} />
             </div>
         </div>

@@ -90,7 +90,6 @@ const rooms: Room[] = [
         connections: [
             { lock: null, to: "flower" },
             { lock: "monkey", to: "cactus" },
-            { lock: "mouse", to: "mail" },
             { lock: "rabbit", to: "rock" },
         ]
 

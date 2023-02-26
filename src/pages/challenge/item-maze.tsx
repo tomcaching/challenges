@@ -4,7 +4,7 @@ type RoomName = "bone" | "mail" | "banana" | "cactus" | "cheese" | "carrot" | "m
 
 type LockName = "monkey" | "rabbit" | "dog" | "mouse" | "duck";
 
-type MiscName = "bag" | "door" | "no" | "yes" | "think" | "question";
+type MiscName = "door" | "question";
 
 type EmojiName = RoomName | LockName | MiscName;
 
@@ -199,11 +199,7 @@ const emojis: Record<EmojiName, string> = {
     dog: "1f436",
     mouse: "1f42d",
     duck: "1f986",
-    bag: "1f4bc",
     door: "1f6aa",
-    no: "274c",
-    yes: "2714",
-    think: "1f4ad",
     question: "2754",
 }
 
@@ -214,102 +210,95 @@ const getRoom = (name: RoomName): Room => {
     return rooms.find(room => room.id == name)!
 }
 
+type EmojiSize = "small" | "large";
+
 type EmojiProps = {
-    code: EmojiName,
+    code: EmojiName;
+    small?: boolean;
+    className?: string;
 }
 
-const Emoji: FC<EmojiProps> = ({ code }: EmojiProps) => {
+const Emoji: FC<EmojiProps> = ({ code, small = false, className = "" }: EmojiProps) => {
     const unicodeEmoji = String.fromCodePoint(parseInt(emojis[code], 16));
 
     return (
-        <div className="h-10 w-10 inline">
-            <img alt={unicodeEmoji} className="h-10 inline align-top" src={getEmojiUrl(code)} />
+        <div className={`${small ? "h-5 w-5" : "h-10 w-10"} inline-flex items-center justify-center ${className}`}>
+            <img alt={unicodeEmoji} className={`inline align-top ${small ? "h-5" : "h-10"}`} src={getEmojiUrl(code)} />
         </div>
     );
 }
 
 type BagProps = {
-    visitedRooms: RoomName[];
     maxRooms: number;
-    thinkingIcon: EmojiName;
+    visitedRooms: RoomName[];
 }
 
-const Bag: FC<BagProps> = ({ visitedRooms, maxRooms, thinkingIcon }) => {
-    let displayedEmojis: EmojiName[] = [...visitedRooms];
-
-    for (let i = visitedRooms.length; i < maxRooms; i++) {
-        displayedEmojis.push("question");
-    }
-
+const Bag: FC<BagProps> = ({ visitedRooms, maxRooms }) => {
     return (
-        <div className={"flex flex-row"}>
-            <div className={""}>
-                <div className={""}>
-                    <Emoji code={"bag"} />
-                </div>
-                <div>
-                    <Emoji code={thinkingIcon} />
-                </div>
-
-                <div className={"bg-green-300"}>
-                    <Emoji code={visitedRooms.at(-1)!} />
-                </div>
-            </div>
-            <div className={"bg-indigo-300"}>
-                {
-                    displayedEmojis.map((roomCode, index) => <Emoji key={index} code={roomCode} />)
-                }
-            </div>
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 p-4 gap-4 bg-black rounded-xl">
+            {
+                visitedRooms.map((roomCode, index) => 
+                    <div className="w-10 h-10" key={index}>
+                        <Emoji code={roomCode} /> 
+                    </div>
+                )
+            }
+            {
+                [...new Array(maxRooms - visitedRooms.length)].map((_, index) => 
+                    <div key={index} className={`${index === 0 ? "bg-neutral-300 ring-4 ring-neutral-600" : "bg-neutral-700"} w-8 h-8 m-1 rounded-full transition-all`}></div>
+                )
+            }
         </div>
-    )
+    );
 }
-
 
 type FootnoteProps = {
     reset: () => void;
 }
 
 const Footnote: FC<FootnoteProps> = ({ reset }) => {
-    return (<>
-        <div className={"text-gray-400 text-sm m-2"}>
-            <button
-                className={"block text-black text-lg font-bold rounded bg-gray-300 px-2 py-1 hover:bg-gray-400 active:bg-gray-500"}
-                onClick={reset}> Resetovat
-            </button>
-        </div>
-    </>
-    )
+    return (
+        <button className="text-black text-lg font-bold rounded-xl transition-all bg-gray-200 px-4 py-2 hover:bg-gray-300 active:bg-gray-500" onClick={reset}> 
+            Resetovat
+        </button>
+    );
 };
 
 type DoorProps = {
-    enabled: boolean;
+    locked: boolean;
     linkedTo: RoomName;
     emoji: EmojiName | null;
     requiredItem: EmojiName | null;
     addRoom: (room: RoomName) => void;
 }
 
-const Door: FC<DoorProps> = ({ enabled, emoji, linkedTo, requiredItem = null, addRoom}) => {
-    const [hasMouse, setHasMouse] = useState<boolean>(false)
-    const shownEmoji: EmojiName =
-        hasMouse
-            ? enabled ? linkedTo : "no"
-            : emoji ?? "door";
+const Door: FC<DoorProps> = ({ locked, emoji, linkedTo, requiredItem = null, addRoom }) => {
+    const [hover, setHover] = useState<boolean>(false)
+    const shownEmoji: EmojiName = (hover && !locked)
+        ? linkedTo
+        : (emoji ?? "door");
 
     return (
-        <div
-            style={{
-                cursor: enabled ? "pointer" : "not-allowed"
-            }}
-            className={"inline-block m-1 rounded-xl min-w-fit"}
-            onMouseEnter={() => setHasMouse(true)}
-            onMouseLeave={() => setHasMouse(false)}
+        <button
+            className={`
+                group relative p-4 border-2 bg-white rounded-xl transition-all
+                enabled:border-neutral-300 enabled:shadow enabled:hover:border-neutral-500 enabled:hover:shadow-xl
+                ${locked ? "cursor-not-allowed" : "cursor-pointer"}
+            `}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            onClick={() => addRoom(linkedTo)}
+            disabled={locked}
         >
-            <button onClick={() => { if (enabled) addRoom(linkedTo);
-            }}>
-                <Emoji code={shownEmoji} />
-            </button>
-        </div>
+            <Emoji code={shownEmoji} className="group-disabled:opacity-50"/>
+            {
+                locked && (
+                    <div className="absolute flex flex-row items-center justify-center bg-white border-2 rounded-full bottom-0 transform translate-y-5 w-10 h-10">
+                        <Emoji code={requiredItem!} small/>
+                    </div>
+                )
+            }
+        </button>
     )
 }
 
@@ -332,45 +321,36 @@ const Doors: FC<DoorsProps> = ({ visitedRooms, maxRooms, currentConnections, add
     if (visitedRooms.length == 0) return <></>;
     if (visitedRooms.length >= maxRooms) return <></>
 
-
     return (
-        <div>
-            <div className={"bg-amber-500"}>
-                {
-                    currentConnections.map((connection, index) => {
-                        const canEnter = connection.lock == null ? true : hasVisited(visitedRooms, neededKey(connection.lock))
+        <div className="flex flex-row items-center justify-center p-2 gap-4 bg-neutral-100 rounded-2xl">
+            {
+                currentConnections.map((connection, index) => {
+                    const canEnter = connection.lock == null ? true : hasVisited(visitedRooms, neededKey(connection.lock))
 
-                        return (
-                            <Door
-                                key={index}
-                                enabled={canEnter}
-                                emoji={connection.lock}
-                                linkedTo={connection.to}
-                                requiredItem={canEnter ? null : neededKey(connection.lock!)}
-                                addRoom={addRoom}
-                            />
-
-                        )
-                    }
+                    return (
+                        <Door
+                            key={index}
+                            emoji={connection.lock}
+                            linkedTo={connection.to}
+                            addRoom={addRoom}
+                            locked={!canEnter}
+                            requiredItem={canEnter ? null : neededKey(connection.lock!)}
+                        />
                     )
-                }
-
-            </div>
-
+                })
+            }
         </div>
     )
 }
 
 const ItemMaze = () => {
-    const initialVisitedRooms: RoomName[] = ["sparkles"];
-    const defaultThinkingIcon: EmojiName = "think";
     const maxRooms = 12;
+    const initialVisitedRooms: RoomName[] = ["sparkles"];
 
     const [visitedRooms, setVisitedRooms] = useState<RoomName[]>(initialVisitedRooms);
-    const [thinkingIcon, setThinkingIcon] = useState<EmojiName>(defaultThinkingIcon)
     const [currentConnections, setCurrentConnections] = useState<Connection[]>([])
 
-    useEffect(() => reset(), [])
+    useEffect(() => reset(), []);
 
     const addRoom = (room: RoomName) => {
         setVisitedRooms(visitedRooms => [...visitedRooms, room]);
@@ -385,9 +365,9 @@ const ItemMaze = () => {
 
     return (
         <div className="text-4xl flex flex-col min-h-screen justify-center items-center">
-            <div className="flex flex-col w-2/3 lg:w-2/5 xl:w-1/3">
-                <Bag thinkingIcon={thinkingIcon} visitedRooms={visitedRooms} maxRooms={maxRooms} />
-                <Doors currentConnections={currentConnections} maxRooms={maxRooms} visitedRooms={visitedRooms} addRoom={addRoom}/>
+            <div className="flex flex-col w-2/3 lg:w-2/5 xl:w-1/3 items-center gap-8">
+                <Bag visitedRooms={visitedRooms} maxRooms={maxRooms} />
+                <Doors currentConnections={currentConnections} maxRooms={maxRooms} visitedRooms={visitedRooms} addRoom={addRoom} />
                 <Footnote reset={reset} />
             </div>
         </div>

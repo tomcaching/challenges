@@ -1,6 +1,18 @@
-import React, { type FC, useEffect, useState } from "react";
+import React, {type FC, useEffect, useState} from "react";
 
-type RoomName = "bone" | "mail" | "banana" | "cactus" | "cheese" | "carrot" | "mushroom" | "flower" | "tree" | "bread" | "rock" | "sparkles";
+type RoomName =
+    "bone"
+    | "mail"
+    | "banana"
+    | "cactus"
+    | "cheese"
+    | "carrot"
+    | "mushroom"
+    | "flower"
+    | "tree"
+    | "bread"
+    | "rock"
+    | "sparkles";
 
 type LockName = "monkey" | "rabbit" | "dog" | "mouse" | "duck";
 
@@ -31,8 +43,8 @@ const rooms: Room[] = [
         id: "bone",
         title: "Kost",
         connections: [
-            { lock: null, to: "flower" },
-            { lock: "rabbit", to: "bread" },
+            {lock: null, to: "flower"},
+            {lock: "rabbit", to: "bread"},
         ]
     },
     //konec:
@@ -46,9 +58,9 @@ const rooms: Room[] = [
         id: "banana",
         title: "",
         connections: [
-            { lock: "duck", to: "tree" },
-            { lock: null, to: "bone" },
-            { lock: "rabbit", to: "flower" },
+            {lock: "duck", to: "tree"},
+            {lock: null, to: "bone"},
+            {lock: "rabbit", to: "flower"},
         ]
 
     },
@@ -57,8 +69,8 @@ const rooms: Room[] = [
         id: "cactus",
         title: "Kaktus",
         connections: [
-            { lock: "mouse", to: "mail" },
-            { lock: null, to: "carrot" },
+            {lock: "mouse", to: "mail"},
+            {lock: null, to: "carrot"},
         ]
 
     },
@@ -67,9 +79,9 @@ const rooms: Room[] = [
         id: "cheese",
         title: "Sýr",
         connections: [
-            { lock: null, to: "bread" },
-            { lock: "duck", to: "carrot" },
-            { lock: null, to: "flower" },
+            {lock: null, to: "bread"},
+            {lock: "duck", to: "carrot"},
+            {lock: null, to: "flower"},
         ]
 
     },
@@ -78,8 +90,8 @@ const rooms: Room[] = [
         id: "carrot",
         title: "Mrkev",
         connections: [
-            { lock: "dog", to: "banana" },
-            { lock: null, to: "rock" },
+            {lock: "dog", to: "banana"},
+            {lock: null, to: "rock"},
         ]
 
     },
@@ -88,9 +100,10 @@ const rooms: Room[] = [
         id: "mushroom",
         title: "Houba",
         connections: [
-            { lock: null, to: "flower" },
-            { lock: "monkey", to: "cactus" },
-            { lock: "rabbit", to: "rock" },
+            {lock: null, to: "flower"},
+            {lock: "monkey", to: "cactus"},
+            {lock: "monkey", to: "mail"},
+            {lock: "rabbit", to: "rock"},
         ]
 
     },
@@ -99,8 +112,8 @@ const rooms: Room[] = [
         id: "flower",
         title: "Kytka",
         connections: [
-            { lock: "dog", to: "bread" },
-            { lock: null, to: "rock" },
+            {lock: "dog", to: "bread"},
+            {lock: null, to: "rock"},
         ]
 
     },
@@ -109,9 +122,9 @@ const rooms: Room[] = [
         id: "tree",
         title: "Strom",
         connections: [
-            { lock: null, to: "bone" },
-            { lock: "monkey", to: "rock" },
-            { lock: "duck", to: "mushroom" },
+            {lock: null, to: "bone"},
+            {lock: "monkey", to: "rock"},
+            {lock: "duck", to: "mushroom"},
         ]
 
     },
@@ -120,8 +133,8 @@ const rooms: Room[] = [
         id: "bread",
         title: "Chleba",
         connections: [
-            { lock: null, to: "cheese" },
-            { lock: "dog", to: "carrot" },
+            {lock: null, to: "cheese"},
+            {lock: "dog", to: "carrot"},
         ]
     },
     //kamen:
@@ -129,11 +142,11 @@ const rooms: Room[] = [
         id: "rock",
         title: "Kámen",
         connections: [
-            { lock: "monkey", to: "cactus" },
-            { lock: null, to: "banana" },
-            { lock: null, to: "bread" },
-            { lock: "dog", to: "flower" },
-            { lock: null, to: "bone" },
+            {lock: "monkey", to: "cactus"},
+            {lock: null, to: "banana"},
+            {lock: null, to: "bread"},
+            {lock: "dog", to: "flower"},
+            {lock: null, to: "bone"},
         ]
     },
     //start:
@@ -141,8 +154,8 @@ const rooms: Room[] = [
         id: "sparkles",
         title: "Zacatek",
         connections: [
-            { lock: null, to: "rock" },
-            { lock: null, to: "mushroom" },
+            {lock: null, to: "rock"},
+            {lock: null, to: "mushroom"},
         ]
     }
 ];
@@ -180,6 +193,22 @@ const locks: Lock[] = [
     }
 ];
 
+const roomLetters: Record<RoomName, string> = {
+    bone: "Q",
+    mail: "L",
+    banana: "V",
+    cactus: "W",
+    cheese: "H",
+    carrot: "M",
+    mushroom: "T",
+    flower: "Z",
+    tree: "Y",
+    bread: "N",
+    rock: "F",
+    sparkles: "G",
+}
+
+
 const emojis: Record<EmojiName, string> = {
     bone: "1f9b4",
     mail: "2709",
@@ -209,20 +238,31 @@ const getRoom = (name: RoomName): Room => {
     return rooms.find(room => room.id == name)!
 }
 
-type EmojiSize = "small" | "large";
+//type EmojiSize = "small" | "large";
 
 type EmojiProps = {
     code: EmojiName;
     small?: boolean;
     className?: string;
+    showLetter?: boolean;
 }
 
-const Emoji: FC<EmojiProps> = ({ code, small = false, className = "" }: EmojiProps) => {
+const Emoji: FC<EmojiProps> = ({code, small = false, className = "", showLetter = false}: EmojiProps) => {
     const unicodeEmoji = String.fromCodePoint(parseInt(emojis[code], 16));
 
     return (
         <div className={`${small ? "h-5 w-5" : "h-10 w-10"} inline-flex items-center justify-center ${className}`}>
-            <img alt={unicodeEmoji} className={`inline align-top ${small ? "h-5" : "h-10"}`} src={getEmojiUrl(code)} />
+            {
+                showLetter
+                    ?
+                    <div className={`inline text-white select-none`}>
+                        {roomLetters[code as RoomName]}
+                    </div>
+                    :
+                    <img alt={unicodeEmoji}
+                         className={` inline align-top ${small ? "h-5" : "h-10"}`}
+                         src={getEmojiUrl(code)}/>
+            }
         </div>
     );
 }
@@ -232,19 +272,72 @@ type BagProps = {
     visitedRooms: RoomName[];
 }
 
-const Bag: FC<BagProps> = ({ visitedRooms, maxRooms }) => {
+const Bag: FC<BagProps> = ({visitedRooms, maxRooms}) => {
+    const [hover, setHover] = useState(false)
+    let duplicatedRooms: RoomName[] = [];
+
+    if (visitedRooms.length == maxRooms) {
+        let uniqueRooms: RoomName[] = [];
+        for (let i = 0; i < maxRooms; i++) {
+            const testedRoom = visitedRooms[i];
+            if (!uniqueRooms.includes(testedRoom))
+                uniqueRooms.push(testedRoom)
+            else if (!duplicatedRooms.includes(testedRoom))
+                duplicatedRooms.push(testedRoom)
+        }
+    }
+
+    const isWrong = (index: number) => {
+        if (visitedRooms.length < maxRooms) return false; //show only when all is filled
+
+        const room = visitedRooms[index];
+        const isLast = index == maxRooms - 1;
+        const isWrongEnd = isLast && room != "mail";
+        const isDuplicate = duplicatedRooms.includes(room)
+
+        return isDuplicate || isWrongEnd;
+    }
+
+    const hasWon = () => {
+        return visitedRooms.length == maxRooms
+            && duplicatedRooms.length ==0;
+    }
+
+    const circleStyle = (index: number) => {
+        const emptyStyle = "bg-neutral-700";
+        const nextStyle = "bg-neutral-300 ring-4 ring-neutral-600";
+        const wrongStyle = "bg-red-600";
+
+        const isNext = index == 0;
+        const isWrong = visitedRooms.at(-1) == "mail";
+
+        return (
+            isWrong
+                ? wrongStyle
+                : isNext
+                    ? nextStyle
+                    : emptyStyle
+        )
+    }
+
     return (
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 p-4 gap-4 bg-black rounded-xl">
+        <div className={`grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 p-4 gap-4 rounded-xl cursor-help  ${hasWon() ? "bg-green-800":" bg-black"}`}
+            onMouseEnter={()=>setHover(true)}
+            onMouseLeave={()=>setHover(false)}
+        >
             {
-                visitedRooms.map((roomCode, index) => 
-                    <div className="w-10 h-10" key={index}>
-                        <Emoji code={roomCode} /> 
+                visitedRooms.map((roomCode, index) =>
+                    <div className={`${isWrong(index) && "bg-red-600"} rounded p-1`} key={index}>
+                        <div className={`w-10 h-10`}>
+                            <Emoji code={roomCode} showLetter={hover}/>
+                        </div>
                     </div>
                 )
             }
             {
-                [...new Array(maxRooms - visitedRooms.length)].map((_, index) => 
-                    <div key={index} className={`${index === 0 ? "bg-neutral-300 ring-4 ring-neutral-600" : "bg-neutral-700"} w-8 h-8 m-1 rounded-full transition-all`}></div>
+                [...new Array(maxRooms - visitedRooms.length)].map((_, index) =>
+                    <div key={index}
+                         className={`${circleStyle(index)} w-8 h-8 m-1 rounded-full transition-all`}/>
                 )
             }
         </div>
@@ -255,9 +348,11 @@ type FootnoteProps = {
     reset: () => void;
 }
 
-const Footnote: FC<FootnoteProps> = ({ reset }) => {
+const Footnote: FC<FootnoteProps> = ({reset}) => {
     return (
-        <button className="text-black text-lg font-bold rounded-xl transition-all bg-gray-200 px-4 py-2 hover:bg-gray-300 active:bg-gray-500" onClick={reset}> 
+        <button
+            className="text-black text-lg font-bold rounded-xl transition-all bg-gray-200 px-4 py-2 hover:bg-gray-300 active:bg-gray-500"
+            onClick={reset}>
             Resetovat
         </button>
     );
@@ -271,7 +366,7 @@ type DoorProps = {
     addRoom: (room: RoomName) => void;
 }
 
-const Door: FC<DoorProps> = ({ locked, emoji, linkedTo, requiredItem = null, addRoom }) => {
+const Door: FC<DoorProps> = ({locked, emoji, linkedTo, requiredItem = null, addRoom}) => {
     const [hover, setHover] = useState<boolean>(false)
     const shownEmoji: EmojiName = (hover && !locked)
         ? linkedTo
@@ -292,7 +387,8 @@ const Door: FC<DoorProps> = ({ locked, emoji, linkedTo, requiredItem = null, add
             <Emoji code={shownEmoji} className="group-disabled:opacity-50"/>
             {
                 locked && (
-                    <div className="absolute flex flex-row items-center justify-center bg-white border-2 rounded-full bottom-0 transform translate-y-5 w-10 h-10">
+                    <div
+                        className="absolute flex flex-row items-center justify-center bg-white border-2 rounded-full bottom-0 transform translate-y-5 w-10 h-10">
                         <Emoji code={requiredItem!} small/>
                     </div>
                 )
@@ -316,9 +412,9 @@ type DoorsProps = {
     addRoom: (room: RoomName) => void;
 };
 
-const Doors: FC<DoorsProps> = ({ visitedRooms, maxRooms, currentConnections, addRoom }) => {
+const Doors: FC<DoorsProps> = ({visitedRooms, maxRooms, currentConnections, addRoom}) => {
     if (visitedRooms.length == 0) return <></>;
-    if (visitedRooms.length >= maxRooms) return <></>
+    if (visitedRooms.length >= maxRooms) return (<div></div>)
 
     return (
         <div className="flex flex-row items-center justify-center p-2 gap-4 bg-neutral-100 rounded-2xl">
@@ -365,9 +461,10 @@ const ItemMaze = () => {
     return (
         <div className="text-4xl flex flex-col min-h-screen justify-center items-center">
             <div className="flex flex-col w-2/3 lg:w-2/5 xl:w-1/3 items-center gap-8">
-                <Bag visitedRooms={visitedRooms} maxRooms={maxRooms} />
-                <Doors currentConnections={currentConnections} maxRooms={maxRooms} visitedRooms={visitedRooms} addRoom={addRoom} />
-                <Footnote reset={reset} />
+                <Bag visitedRooms={visitedRooms} maxRooms={maxRooms}/>
+                <Doors currentConnections={currentConnections} maxRooms={maxRooms} visitedRooms={visitedRooms}
+                       addRoom={addRoom}/>
+                <Footnote reset={reset}/>
             </div>
         </div>
     )

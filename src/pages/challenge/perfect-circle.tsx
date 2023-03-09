@@ -1,36 +1,11 @@
+import { computePerfectCircleScore, type Point } from "@/components/utils/perfectCircleUtils";
 import { createRef, useCallback, useEffect, useState, MouseEvent } from "react";
-
-type Point = {
-    x: number;
-    y: number;
-};
-
-type PerfectCircleScore = {
-    similarity: number;
-    radius: number;
-}
-
-const distance = (first: Point, second: Point): number => {
-    return Math.sqrt(
-        (first.x - second.x) * (first.x - second.x) +
-        (first.y - second.y) * (first.y - second.y)
-    );
-};
-
-const computePerfectCircleScore = (points: Array<Point>, center: Point): PerfectCircleScore => {
-    const radius = points.reduce((sum, point) => sum + distance(point, center), 0) / points.length;
-    const error = points.reduce((sum, point) => sum + Math.abs(distance(point, center) - radius), 0);
-
-    return {
-        similarity: 1 - error,
-        radius
-    }
-}
 
 const PerfectCircle = () => {
     const canvasRef = createRef<HTMLCanvasElement>();
     const [drawing, setDrawing] = useState<boolean>(false);
     const [points, setPoints] = useState<Array<Point>>([]);
+    const [error, setError] = useState<string|null>(null);
 
     const resetCanvas = useCallback(() => {
         if (!canvasRef.current) {
@@ -46,6 +21,7 @@ const PerfectCircle = () => {
         }
 
         setPoints([]);
+        setError(null);
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = "#ff0000";
@@ -91,6 +67,10 @@ const PerfectCircle = () => {
     }, [resetCanvas, setDrawing, setPoints]);
 
     const finishDrawing = () => {
+        if (!drawing) {
+            return;
+        }
+        
         setDrawing(false);
 
         const canvas = canvasRef.current;
@@ -102,7 +82,17 @@ const PerfectCircle = () => {
         }
 
         const center = { x: canvas.width / 2, y: canvas.height / 2 };
-        const { similarity, radius } = computePerfectCircleScore(points, center);
+        const { similarity, radius, isClockwise, isComplete } = computePerfectCircleScore(points, center);
+
+        if (!isClockwise) {
+            setError("Kruh není ve směru hodinových ručiček!")
+            return;
+        }
+
+        if (!isComplete) {
+            setError("Kruh není kompletní!")
+            return;
+        }
 
         context.beginPath();
         context.arc(center.x, center.y, radius, 0, Math.PI * 2);
@@ -110,8 +100,8 @@ const PerfectCircle = () => {
         context.lineWidth = 3;
         context.stroke();
 
-        context.fillText(similarity.toFixed(6), center.x, center.y + radius + 20)
-    }
+        context.fillText((similarity * 100).toFixed(2) + "%", center.x, center.y + radius + 20)
+    };
 
     return (
         <main className="flex flex-col items-center">
@@ -121,12 +111,17 @@ const PerfectCircle = () => {
             </div>
 
             <canvas 
-                ref={canvasRef} width={700} height={700} className="border rounded-xl shadow-xl"
+                ref={canvasRef} width={500} height={500} className="border rounded-xl shadow-xl"
                 onMouseMove={(event) => draw(event)}
-                onMouseLeave={() => finishDrawing()}
                 onMouseDown={() => startDrawing()}
+                onMouseLeave={() => finishDrawing()}
                 onMouseUp={() => finishDrawing()}
             />
+
+            <small className="text-neutral-400 mt-3">Btw, zelený kruh co se zobrazí je největší shoda...</small>
+            { error && 
+                <div className="mt-5 font-bold text-red-500">{error}</div>
+            }
         </main>
     );
 };

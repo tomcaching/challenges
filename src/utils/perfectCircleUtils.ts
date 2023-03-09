@@ -35,7 +35,7 @@ export const isClockwise = (angles: Array<number>, originAngle: number): boolean
 
 export const isComplete = (angles: Array<number>): boolean => {
     const checkpoints = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
-    const threshold = Math.PI / 4;
+    const threshold = Math.PI / 8;
 
     console.log(angles, checkpoints);
 

@@ -111,7 +111,7 @@ const PerfectCircle = () => {
             </div>
 
             <canvas 
-                ref={canvasRef} width={500} height={500} className="border rounded-xl shadow-xl"
+                ref={canvasRef} width={500} height={500} className={`transition-all border rounded-xl shadow-xl ${error && "border-red-500 shadow-red-100"}`}
                 onMouseMove={(event) => draw(event)}
                 onMouseDown={() => startDrawing()}
                 onMouseLeave={() => finishDrawing()}

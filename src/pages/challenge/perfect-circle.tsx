@@ -6,6 +6,7 @@ const PerfectCircle = () => {
     const [drawing, setDrawing] = useState<boolean>(false);
     const [points, setPoints] = useState<Array<Point>>([]);
     const [error, setError] = useState<string|null>(null);
+    const [answer, setAnswer] = useState<string|null>(null);
 
     const resetCanvas = useCallback(() => {
         if (!canvasRef.current) {
@@ -96,11 +97,28 @@ const PerfectCircle = () => {
 
         context.beginPath();
         context.arc(center.x, center.y, radius, 0, Math.PI * 2);
-        context.strokeStyle = "#99ff99";
-        context.lineWidth = 3;
+        context.strokeStyle = "#dddddd";
+        context.fillStyle = "#999999";
+        context.lineWidth = 2;
         context.stroke();
 
-        context.fillText((similarity * 100).toFixed(2) + "%", center.x, center.y + radius + 20)
+        context.fillText((similarity * 100).toFixed(2) + "%", center.x - 15, center.y + radius + 20)
+
+        if (similarity < 0.98) {
+            setError("Bohužel, tohle není ještě úplně ono...");
+            return;
+        }
+
+        const body = JSON.stringify({
+            points: points,
+            center: center
+        });
+
+        fetch("/api/check-perfect-circle", { method: "POST", body }).then(response => {
+            if (response.ok) {
+                response.text().then(answer => setAnswer(answer));
+            }
+        });
     };
 
     return (
@@ -111,17 +129,20 @@ const PerfectCircle = () => {
             </div>
 
             <canvas 
-                ref={canvasRef} width={500} height={500} className={`transition-all border rounded-xl shadow-xl ${error && "border-red-500 shadow-red-100"}`}
+                ref={canvasRef} width={500} height={500} className={`transition-all border rounded-xl shadow-xl ${answer ? ("border-green-500 shadow-green-100") : (error && "border-red-500 shadow-red-100")}`}
                 onMouseMove={(event) => draw(event)}
                 onMouseDown={() => startDrawing()}
                 onMouseLeave={() => finishDrawing()}
                 onMouseUp={() => finishDrawing()}
             />
 
-            <small className="text-neutral-400 mt-3">Btw, zelený kruh co se zobrazí je největší shoda...</small>
-            { error && 
-                <div className="mt-5 font-bold text-red-500">{error}</div>
-            }
+            <small className="text-neutral-400 mt-3">Btw, šedý kruh co se zobrazí je největší shoda...</small>
+            { error && <div className="mt-5 font-bold text-red-500">{error}</div> }
+            { answer && (
+                <div className="mt-5 font-black text-green-500">
+                    Gratuluji! Odpověď pro mysterku je: <span className="font-mono text-green-800">{answer}</span>
+                </div>
+            )}
         </main>
     );
 };

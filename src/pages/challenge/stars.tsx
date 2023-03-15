@@ -62,16 +62,16 @@ const Stars: NextPage<StarsPageProps> = ({ challenge }) => {
             <Head>
                 <title>⭐ 🌟 ⭐ 🌟 ⭐ 🌟</title>
             </Head>
-            <main className="min-h-screen flex flex-row items-center justify-center gap-10">
-                <div className="block p-2 m-2 border rounded-xl">
+            <main className={`min-h-screen flex flex-row items-center justify-center gap-10 transition-colors duration-1000 ${solved ? "bg-black" : ""}`}>
+                <div className={`block p-2 m-2 border rounded-xl transition-colors duration-1000 ${solved ? "border-transparent" : ""}`}>
                     <div className="flex flex-row flex-wrap w-80">
                         {
                             data.grid.cells.map((cell) => {
                                 return (
-                                    <div key={positionKey(cell.position)} onClick={() => toggleCell(cell.position)} className={`flex items-center justify-center text-xl w-8 h-8 rounded-lg border-2 border-white transition-colors cursor-pointer ${
+                                    <div key={positionKey(cell.position)} onClick={() => toggleCell(cell.position)} className={`flex items-center justify-center text-xl w-8 h-8 rounded-lg border-2 transition-colors duration-1000 cursor-pointer ${
                                         solved 
-                                        ? "bg-green-900 text-green-500" 
-                                        : (errors.some(error => positionEquals(error, cell.position)) ? "bg-red-900 text-white" : color(cell.sector))
+                                        ? `${cell.star ? "bg-transparent text-yellow-500 border-transparent shadow shadow-yellow-500 z-10" : "bg-black border-transparent"}` 
+                                        : ((errors.some(error => positionEquals(error, cell.position)) ? "bg-red-900 text-white" : color(cell.sector)) + " transition-colors duration-1000 border-white")
                                     }`}>
                                         {cell.star && "★"}
                                     </div>
@@ -80,14 +80,16 @@ const Stars: NextPage<StarsPageProps> = ({ challenge }) => {
                         }
                     </div>
                 </div>
-                <ul className="list-disc">
+                <ul className="list-disc text-neutral-800">
                     <li>Žádné 2 hvězdy se nesmí dotýkat</li>
                     <li>Každý řádek musí obsahovat přesně 2 hvězdy</li>
                     <li>Každý sloupec musí obsahovat přesně 2 hvězdy</li>
                     <li>Každý barevný sektor musí obsahovat přesně 2 hvězdy</li>
-                    {
-                        (solved && answer) && <li className="text-green-700 font-bold">Odpověď je <strong className="text-green-800">{answer}</strong></li>
-                    }
+                    <li className="text-white font-bold">Odpověď je {" "}
+                        {
+                            (solved && answer) && (<strong className="font-black underline">{answer}</strong>)
+                        }
+                    </li>
                 </ul>
             </main>
         </>
